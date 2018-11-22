@@ -67,7 +67,7 @@ class CaskManager(private var directory: File, private var sizeLimit: Long)
   private def getFilesFromFolder(folder: File): List[File] = {
     var files = List[File]()
     if (!folder.exists) {
-      files
+      return files
     }
     for (file <- folder.listFiles()) {
       if (!file.isDirectory) {
