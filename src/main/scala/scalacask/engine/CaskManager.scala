@@ -60,6 +60,7 @@ class CaskManager(private var directory: File, private var sizeLimit: Long)
   }
 
   override def close(): Unit = {
+    keyDir.persist(new File(directory.getAbsolutePath + "keydir"))
     reader.close()
     writer.close()
   }

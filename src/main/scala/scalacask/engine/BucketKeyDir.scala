@@ -15,12 +15,17 @@ class BucketKeyDir extends KeyDir {
 
   initBuckets(1000000)
 
-  private def initBuckets(bucketCount: Int): Unit = {
-    this.bucketCount = bucketCount
-    buckets = Array.ofDim(bucketCount)
-    for (i <- 0 until bucketCount) {
-      buckets(i) = ArrayBuffer()
+  override def put(key: String, entry: Entry): Unit = {
+    val index = getIndex(key)
+    val bucket = buckets(index)
+    val existing = get(key)
+    if (existing == null) {
+      bucket.insert(0, entry)
     }
+    else {
+      bucket(index) = entry
+    }
+    items += 1
   }
 
   private def getIndex(key: String): Int = Math.abs(key.hashCode) % bucketCount
@@ -36,28 +41,18 @@ class BucketKeyDir extends KeyDir {
     null
   }
 
-  override def put(key: String, entry: Entry): Unit = {
-    val index = getIndex(key)
-    val bucket = buckets(index)
-    val existing = get(key)
-    if (existing == null) {
-      bucket.insert(0, entry)
-    }
-    else {
-      bucket(index) = entry
-    }
-    items += 1
-  }
-
-  /** private def resize(size: Int): Unit = {
-    * while (buckets.size < size) buckets.add(new List[Entry]())
-    * bucketCount = size
-    * } **/
-
   override def containsKey(key: String): Boolean = get(key) == null
 
   override def load(directory: File): Unit = {}
 
   override def persist(directory: File): Unit = {}
+
+  private def initBuckets(bucketCount: Int): Unit = {
+    this.bucketCount = bucketCount
+    buckets = Array.ofDim(bucketCount)
+    for (i <- 0 until bucketCount) {
+      buckets(i) = ArrayBuffer()
+    }
+  }
 
 }

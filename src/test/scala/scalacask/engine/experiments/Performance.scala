@@ -1,4 +1,4 @@
-package scalacask.experiments
+package scalacask.engine.experiments
 
 import java.io.{File, IOException}
 import java.util.Random
