@@ -1,37 +1,22 @@
 package scalacask.engine
 
-import java.io.{File, IOException}
+import java.io._
 
 class CaskManager(private var directory: File, private var sizeLimit: Long)
   extends IOManager {
 
+  private val keyDirFile = new File(directory.getAbsolutePath + "/keyDir")
+  private val keyDir = loadKeyDir
   private var files: List[File] = getFilesFromFolder(directory)
-
   if (files.size == 0) {
     directory.mkdir()
-    createFile()
+    createFile
   }
-
   private var activeFile: Int = files.size - 1
-
-  private val keyDir: KeyDir = new BucketKeyDir()
-
   private val reader: Reader = new Reader(files)
-
   private val writer: Writer = new Writer(files(activeFile))
 
   def this(directory: File) = this(directory, Math.pow(10, 8).toLong)
-
-  private def createFile(): Unit = {
-    val file: File = new File(directory.getName + "/" + activeFile)
-    try {
-      file.createNewFile()
-      files = file :: files
-    } catch {
-      case e: IOException => e.printStackTrace()
-
-    }
-  }
 
   override def set(key: String, value: Array[Byte]): Unit = {
     val entry = writer.write(key, value)
@@ -40,7 +25,17 @@ class CaskManager(private var directory: File, private var sizeLimit: Long)
       {
         activeFile += 1
       }
-      createFile()
+      createFile
+    }
+  }
+
+  private def createFile(): Unit = {
+    val file: File = new File(directory.getName + "/" + activeFile)
+    try {
+      file.createNewFile
+      files = file :: files
+    } catch {
+      case e: IOException => e.printStackTrace()
     }
   }
 
@@ -53,16 +48,33 @@ class CaskManager(private var directory: File, private var sizeLimit: Long)
   }
 
   override def nuke(): Unit = {
-    close()
-    for (file <- files if !file.delete()) {
+    close
+    for (file <- directory.listFiles() if !file.delete) {
       throw new IOException("Couldn't delete file " + file.getName)
     }
+
   }
 
   override def close(): Unit = {
-    keyDir.persist(new File(directory.getAbsolutePath + "keydir"))
-    reader.close()
-    writer.close()
+    persistKeyDir
+    reader.close
+    writer.close
+  }
+
+  def persistKeyDir(): Unit = {
+    val oos = new ObjectOutputStream(new FileOutputStream(keyDirFile))
+    oos.writeObject(keyDir)
+    oos.close
+  }
+
+  def loadKeyDir(): KeyDir = {
+    if (keyDirFile.exists() && !keyDirFile.isDirectory) {
+      val ois = new ObjectInputStream(new FileInputStream(keyDirFile))
+      val keyDir = ois.readObject.asInstanceOf[BucketKeyDir]
+      ois.close
+      return keyDir
+    }
+    return new BucketKeyDir
   }
 
   private def getFilesFromFolder(folder: File): List[File] = {
@@ -71,11 +83,19 @@ class CaskManager(private var directory: File, private var sizeLimit: Long)
       return files
     }
     for (file <- folder.listFiles()) {
-      if (!file.isDirectory) {
+      if (!file.isDirectory && !file.getName.equals("keyDir")) {
         files = file :: files
       }
     }
     files
   }
 
+  /**
+    * Delete the value of the corresponding key.
+    *
+    * @param key the key.
+    */
+  override def delete(key: String): Unit = {
+    keyDir.delete(key)
+  }
 }

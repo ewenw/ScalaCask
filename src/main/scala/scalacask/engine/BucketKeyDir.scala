@@ -1,19 +1,15 @@
 package scalacask.engine
 
-import java.io.File
-
 import scala.collection.mutable._
 
+@SerialVersionUID(123L)
+class BucketKeyDir extends KeyDir with Serializable {
 
-class BucketKeyDir extends KeyDir {
-
-  var buckets: Array[Buffer[Entry]] = _
-
-  private var bucketCount: Int = _
-
+  var buckets: Array[Buffer[Entry]] = Array.ofDim(bucketCount)
+  private var bucketCount: Int = 1000000
   private var items: Long = 0
 
-  initBuckets(1000000)
+  initBuckets(bucketCount)
 
   override def put(key: String, entry: Entry): Unit = {
     val index = getIndex(key)
@@ -23,16 +19,21 @@ class BucketKeyDir extends KeyDir {
       bucket.insert(0, entry)
     }
     else {
-      bucket(index) = entry
+      var entryIndex = 0
+      for (existingEntry <- bucket) {
+        if (existing.getKey.equals(entry.getKey)) {
+          bucket(entryIndex) = entry
+        }
+        entryIndex += 1
+      }
     }
     items += 1
   }
 
-  private def getIndex(key: String): Int = Math.abs(key.hashCode) % bucketCount
+  override def containsKey(key: String): Boolean = get(key) == null
 
   override def get(key: String): Entry = {
     val bucket = buckets(getIndex(key))
-
     for (e <- bucket) {
       if (e.getKey.equals(key)) {
         return e
@@ -41,11 +42,24 @@ class BucketKeyDir extends KeyDir {
     null
   }
 
-  override def containsKey(key: String): Boolean = get(key) == null
+  private def getIndex(key: String): Int = Math.abs(key.hashCode) % bucketCount
 
-  override def load(directory: File): Unit = {}
-
-  override def persist(directory: File): Unit = {}
+  /**
+    * Delte the entry of the corresponding key.
+    *
+    * @param key the key.
+    */
+  override def delete(key: String): Unit = {
+    val bucket = buckets(getIndex(key))
+    var entryIndex = 0
+    for (e <- bucket) {
+      if (e.getKey.equals(key)) {
+        bucket.remove(entryIndex)
+      }
+      entryIndex += 1
+    }
+    null
+  }
 
   private def initBuckets(bucketCount: Int): Unit = {
     this.bucketCount = bucketCount
@@ -54,5 +68,4 @@ class BucketKeyDir extends KeyDir {
       buckets(i) = ArrayBuffer()
     }
   }
-
 }

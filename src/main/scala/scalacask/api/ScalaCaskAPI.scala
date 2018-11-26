@@ -12,7 +12,7 @@ import scalacask.engine.{CaskManager, IOManager}
   * @param directory the default data directory.
   * @param sizeLimit the size limit of an individual file.
   */
-class ScalaCaskAPI(private val directory: File = new File("data"), private val sizeLimit: Int = Int(Math.pow(10, 8))) extends ScalaCask {
+class ScalaCaskAPI(private val directory: File = new File("data"), private val sizeLimit: Int = Math.pow(10, 8).toInt) extends ScalaCask {
 
   private val manager: IOManager = new CaskManager(directory, sizeLimit)
 
@@ -60,5 +60,30 @@ class ScalaCaskAPI(private val directory: File = new File("data"), private val s
     */
   override def getString(key: String): String = {
     new String(manager.read(typePadding("Image") + key))
+  }
+
+  /**
+    * Closes the ScalaCask data store and persists memory to disk.
+    */
+  override def close(): Unit = {
+    manager.close()
+  }
+
+  /**
+    * Delete the stored Image.
+    *
+    * @param key the key to delete the value from.
+    */
+  override def deleteImage(key: String): Unit = {
+    manager.read(typePadding("Image") + key)
+  }
+
+  /**
+    * Delete the stored String.
+    *
+    * @param key the key to delete the value from.
+    */
+  override def deleteString(key: String): Unit = {
+    manager.read(typePadding("String") + key)
   }
 }

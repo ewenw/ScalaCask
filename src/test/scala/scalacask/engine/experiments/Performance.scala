@@ -3,7 +3,7 @@ package scalacask.engine.experiments
 import java.io.{File, IOException}
 import java.util.Random
 
-import scalacask.engine.CaskManager
+import scalacask.engine.{CaskManager, IOManager}
 
 
 object Performance {
@@ -11,10 +11,10 @@ object Performance {
   var rand: Random = new Random(20)
 
   /**
-    * TRIAL 1: 1 million inserts - 16244346005ns. 1 million retrieves - 5581567039ns
+    * TRIAL 1: 1 million inserts - 7415700972ns. 1 million retrieves - 1652305461ns
     */
   def main(args: Array[String]): Unit = {
-    var cask: CaskManager =
+    var cask: IOManager =
       new CaskManager(new File("data"), Math.pow(10, 8).toLong)
     println("Starting performance experiment...")
     try {
@@ -40,9 +40,9 @@ object Performance {
         }
       }
       println("Retrievals: " + (System.nanoTime() - before) + "ns")
+      cask.close
     } catch {
       case e: IOException => e.printStackTrace()
-
     }
   }
 
@@ -54,8 +54,7 @@ object Performance {
       s += (rand.nextInt(26) + 'a').toChar
     }
     {
-      count += 1;
-      count - 1
+      count += 1
     }
     s
   }

@@ -6,18 +6,35 @@ import java.util.Random
 import org.scalatest.FunSuite
 
 class ScalaCaskTest extends FunSuite {
-  var rand: Random = new Random(20)
+  val rand: Random = new Random(20)
 
   var count: Int = 0
 
   def getRandUniqueString(bound: Int): String = {
     var s: String = "" + count
-    for (i <- 0 until rand.nextInt(bound) + 2) {
+    for (_ <- 0 until rand.nextInt(bound) + 2) {
       s += (rand.nextInt(26) + 'a').toChar
     }
     s
   }
 
+  test("Values can be deleted") {
+    val manager: IOManager = new CaskManager(new File("data"), 100)
+    var thrown = false
+    manager.set("key", "value".getBytes)
+    manager.set("key2", "efg".getBytes)
+    manager.delete("key2")
+    assert("value".equals(new String(manager.read("key"))))
+    try {
+      manager.read("key2")
+    } catch {
+      case e: IllegalArgumentException => {
+        thrown = true
+      }
+        manager.nuke()
+        assert(thrown)
+    }
+  }
   test("A CaskManager be able to get values from keys that it has written to") {
     val manager: IOManager = new CaskManager(new File("data"), 100)
     var s: String = ""
@@ -61,4 +78,19 @@ class ScalaCaskTest extends FunSuite {
     }
   }
 
+
+  test("Another session should load up the KeyDir with the same data") {
+    var manager: IOManager = new CaskManager(new File("data"), 100)
+    manager.set("key", "value".getBytes)
+    manager.set("key2", "efg".getBytes)
+    manager.set("key2", "value".getBytes)
+    assert("value".equals(new String(manager.read("key"))))
+    assert("value".equals(new String(manager.read("key2"))))
+    manager.close()
+    manager = new CaskManager(new File("data"), 100)
+    assert("value".equals(new String(manager.read("key"))))
+    assert("value".equals(new String(manager.read("key2"))))
+    manager.nuke()
+  }
 }
+

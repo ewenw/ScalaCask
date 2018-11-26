@@ -42,6 +42,20 @@ trait ScalaCask {
   def getString(key: String): String
 
   /**
+    * Delete the stored Image.
+    *
+    * @param key the key to delete the value from.
+    */
+  def deleteImage(key: String): Unit
+
+  /**
+    * Delete the stored String.
+    *
+    * @param key the key to delete the value from.
+    */
+  def deleteString(key: String): Unit
+
+  /**
     * Closes the ScalaCask data store and persists memory to disk.
     */
   def close(): Unit
