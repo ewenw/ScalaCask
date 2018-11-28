@@ -25,6 +25,14 @@ trait ScalaCask {
     */
   def setString(key: String, str: String): Unit
 
+
+  /**
+    * Add String to a list.
+    *
+    * @param key the key.
+    */
+  def addToList(key: String, element: String): Unit
+
   /**
     * Retrieve the stored Image.
     *
@@ -42,6 +50,14 @@ trait ScalaCask {
   def getString(key: String): String
 
   /**
+    * Retrieve the entire list.
+    *
+    * @param key the key to retrieve the list from.
+    * @return the list of String values.
+    */
+  def getList(key: String): List[String]
+
+  /**
     * Delete the stored Image.
     *
     * @param key the key to delete the value from.
@@ -55,9 +71,15 @@ trait ScalaCask {
     */
   def deleteString(key: String): Unit
 
+
   /**
     * Closes the ScalaCask data store and persists memory to disk.
     */
   def close(): Unit
+
+  /**
+    * Nukes all of the data.
+    */
+  def nuke(): Unit
 
 }

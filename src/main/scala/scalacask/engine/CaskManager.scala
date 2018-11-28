@@ -12,9 +12,9 @@ class CaskManager(private var directory: File, private var sizeLimit: Long)
     directory.mkdir()
     createFile
   }
+  private val writer: Writer = new Writer(files(activeFile))
   private var activeFile: Int = files.size - 1
   private val reader: Reader = new Reader(files)
-  private val writer: Writer = new Writer(files(activeFile))
 
   def this(directory: File) = this(directory, Math.pow(10, 8).toLong)
 
@@ -42,7 +42,7 @@ class CaskManager(private var directory: File, private var sizeLimit: Long)
   override def read(key: String): Array[Byte] = {
     val entry = keyDir.get(key)
     if (entry == null) {
-      throw new IllegalArgumentException("Could not find key.");
+      throw new IllegalArgumentException("Could not find key " + key + ".");
     }
     reader.read(entry.getFileId, entry.getPos, entry.getSize)
   }
@@ -77,6 +77,15 @@ class CaskManager(private var directory: File, private var sizeLimit: Long)
     return new BucketKeyDir
   }
 
+  /**
+    * Delete the value of the corresponding key.
+    *
+    * @param key the key.
+    */
+  override def delete(key: String): Unit = {
+    keyDir.delete(key)
+  }
+
   private def getFilesFromFolder(folder: File): List[File] = {
     var files = List[File]()
     if (!folder.exists) {
@@ -88,14 +97,5 @@ class CaskManager(private var directory: File, private var sizeLimit: Long)
       }
     }
     files
-  }
-
-  /**
-    * Delete the value of the corresponding key.
-    *
-    * @param key the key.
-    */
-  override def delete(key: String): Unit = {
-    keyDir.delete(key)
   }
 }

@@ -16,7 +16,10 @@ class ScalaCaskAPI(private val directory: File = new File("data"), private val s
 
   private val manager: IOManager = new CaskManager(directory, sizeLimit)
 
-  private val typePadding = Map("Image" -> "i", "String" -> "s")
+  private val typePadding = Map("Image" -> "i", "String" -> "s", "List" -> "l")
+
+  private var listSizes = scala.collection.mutable.Map[String, Int]()
+
 
   /**
     * Store an Image value.
@@ -28,7 +31,7 @@ class ScalaCaskAPI(private val directory: File = new File("data"), private val s
     val byteArray = new ByteArrayOutputStream
     ImageIO.write(image, "jpg", byteArray)
     byteArray.flush()
-    manager.set(typePadding("Image") + key, byteArray.toByteArray);
+    manager.set(typePadding("Image") + key, byteArray.toByteArray)
   }
 
   /**
@@ -38,7 +41,7 @@ class ScalaCaskAPI(private val directory: File = new File("data"), private val s
     * @param str the String to store.
     */
   override def setString(key: String, str: String): Unit = {
-    manager.set(typePadding("String") + key, str.getBytes);
+    manager.set(typePadding("String") + key, str.getBytes)
   }
 
   /**
@@ -85,5 +88,52 @@ class ScalaCaskAPI(private val directory: File = new File("data"), private val s
     */
   override def deleteString(key: String): Unit = {
     manager.read(typePadding("String") + key)
+  }
+
+  /**
+    * Add String to a list.
+    *
+    * @param key the key.
+    */
+  override def addToList(key: String, element: String): Unit = {
+    val index = listSizes.get(key) match {
+      case Some(i) => {
+        listSizes(key) = i + 1
+        i + 1
+      }
+      case None => {
+        listSizes(key) = 0
+        0
+      }
+    }
+    manager.set(typePadding("List") + key + index, element.getBytes())
+  }
+
+  /**
+    * Retrieve the entire list.
+    *
+    * @param key the key to retrieve the list from.
+    * @return the List of String values.
+    */
+  override def getList(key: String): List[String] = {
+    var result = List[String]()
+    listSizes.get(key) match {
+      case Some(i) => {
+        for (j <- 0 to i) {
+          result ::= new String(manager.read(typePadding("List") + key + j))
+        }
+      }
+    }
+    return result.reverse
+  }
+
+
+  /**
+    * Nukes all of the data.
+    */
+  override def nuke(): Unit
+
+  = {
+    manager.nuke
   }
 }

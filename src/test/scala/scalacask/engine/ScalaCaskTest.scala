@@ -15,7 +15,7 @@ class ScalaCaskTest extends FunSuite {
     for (_ <- 0 until rand.nextInt(bound) + 2) {
       s += (rand.nextInt(26) + 'a').toChar
     }
-    s
+    s""
   }
 
   test("Values can be deleted") {
