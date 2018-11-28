@@ -1,19 +1,22 @@
 package scalacask.engine.twitter;
 
+import scalacask.api.ScalaCaskAPI;
+
 import java.util.Date;
 public class TwitterTester {
 
   private static TwitterAPI api = new ScalaCaskTwitterAPI();
-  private static TweetGenerator tg = new TweetGenerator("google-10000-english-usa.txt", 50000);
+  private static TweetGenerator tg = new TweetGenerator("src/google-10000-english-usa.txt", 50000);
   private static SpeedLog insertFollowersLogger = new SpeedLog("insertFollowers");
   private static SpeedLog insertTweetsLogger = new SpeedLog("insertTweets");
   private static SpeedLog timelineLogger = new SpeedLog("timeline");
 
   public static void main(String[] args) {
-    api.reset();
+    new ScalaCaskTwitterAPI().reset();
     insertFollowers(5, api);
-    insertTweets(1000000, api);
+    insertTweets(1000000, api);//1000000
     retrieveTweets(5000, 10, api);
+    api.reset();
   }
 
   // Inserts n random Tweets into database
@@ -46,10 +49,10 @@ public class TwitterTester {
       if (i % 1000 == 0) {
         System.out.println(i + " followings inserted");
         insertFollowersLogger.startRecord();
-        api.addFollower(user, follower);
+        api.addFollower(""+user, ""+follower);
         insertFollowersLogger.endRecord();
       } else {
-        api.addFollower(user, follower);
+        api.addFollower(""+user, ""+follower);
       }
     }
     insertFollowersLogger.dump();
@@ -62,7 +65,7 @@ public class TwitterTester {
     for (long i = 0; i < nUsers; i++) {
       long userId = tg.getRandomUser();
       timelineLogger.startRecord();
-      api.getTimeline(userId, nPosts);
+      api.getTimeline(""+userId, nPosts);
       timelineLogger.endRecord();
     }
     timelineLogger.dump();

@@ -62,7 +62,7 @@ class ScalaCaskAPI(private val directory: File = new File("data"), private val s
     * @return the String value.
     */
   override def getString(key: String): String = {
-    new String(manager.read(typePadding("Image") + key))
+    new String(manager.read(typePadding("String") + key))
   }
 
   /**
@@ -120,9 +120,15 @@ class ScalaCaskAPI(private val directory: File = new File("data"), private val s
     listSizes.get(key) match {
       case Some(i) => {
         for (j <- 0 to i) {
-          result ::= new String(manager.read(typePadding("List") + key + j))
+          try {
+            result ::= new String(manager.read(typePadding("List") + key + j))
+          }
+          catch{
+            case _: IllegalArgumentException =>
+          }
         }
       }
+      case None =>
     }
     return result.reverse
   }

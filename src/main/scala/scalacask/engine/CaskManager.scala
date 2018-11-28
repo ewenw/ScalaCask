@@ -48,11 +48,11 @@ class CaskManager(private var directory: File, private var sizeLimit: Long)
   }
 
   override def nuke(): Unit = {
-    close
+    reader.close
+    writer.close
     for (file <- directory.listFiles() if !file.delete) {
       throw new IOException("Couldn't delete file " + file.getName)
     }
-
   }
 
   override def close(): Unit = {
