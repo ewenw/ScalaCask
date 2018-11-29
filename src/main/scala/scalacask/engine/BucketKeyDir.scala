@@ -58,7 +58,6 @@ class BucketKeyDir extends KeyDir with Serializable {
       }
       entryIndex += 1
     }
-    null
   }
 
   private def initBuckets(bucketCount: Int): Unit = {

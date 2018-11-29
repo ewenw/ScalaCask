@@ -78,7 +78,7 @@ class ScalaCaskAPI(private val directory: File = new File("data"), private val s
     * @param key the key to delete the value from.
     */
   override def deleteImage(key: String): Unit = {
-    manager.read(typePadding("Image") + key)
+    manager.delete(typePadding("Image") + key)
   }
 
   /**
@@ -87,7 +87,7 @@ class ScalaCaskAPI(private val directory: File = new File("data"), private val s
     * @param key the key to delete the value from.
     */
   override def deleteString(key: String): Unit = {
-    manager.read(typePadding("String") + key)
+    manager.delete(typePadding("String") + key)
   }
 
   /**
