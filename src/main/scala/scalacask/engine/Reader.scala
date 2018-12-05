@@ -2,6 +2,10 @@ package scalacask.engine
 
 import java.io.{File, RandomAccessFile}
 
+/**
+  * Handles reading from a file via random access. Used by CaskManager.
+  * @param files
+  */
 class Reader(private var files: List[File]) {
   private var readFiles = List[RandomAccessFile]()
 

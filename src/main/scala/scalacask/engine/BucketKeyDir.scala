@@ -44,11 +44,6 @@ class BucketKeyDir extends KeyDir with Serializable {
 
   private def getIndex(key: String): Int = Math.abs(key.hashCode) % bucketCount
 
-  /**
-    * Delte the entry of the corresponding key.
-    *
-    * @param key the key.
-    */
   override def delete(key: String): Unit = {
     val bucket = buckets(getIndex(key))
     var entryIndex = 0

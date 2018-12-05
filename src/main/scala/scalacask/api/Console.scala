@@ -2,6 +2,9 @@ package scalacask.api
 
 import java.util.Scanner
 
+/**
+  * Allows the user to interact with the database through REPL.
+  */
 object Console extends App {
   override def main(args: Array[String]): Unit = {
     val line = new Scanner(System.in)

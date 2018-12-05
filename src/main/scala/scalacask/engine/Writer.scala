@@ -4,7 +4,11 @@ import java.io.{File, FileNotFoundException, FileOutputStream}
 import java.nio.ByteBuffer
 import java.nio.channels.FileChannel
 
-
+/**
+  * Handles writing to a file sequentially (append-only). Used by CaskManager.
+  *
+  * @param file the file.
+  */
 class Writer(file: File) {
 
   private var channel: FileChannel = _
